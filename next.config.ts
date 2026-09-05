@@ -1,9 +1,9 @@
-import './lib/env'
-import { withWorkflow } from 'workflow/next'
-import type { NextConfig } from 'next'
+import "./lib/env";
+import type { NextConfig } from "next";
+import { withWorkflow } from "workflow/next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  reactCompiler: true
-}
-export default withWorkflow(nextConfig)
+  reactCompiler: true,
+};
+export default withWorkflow(nextConfig);

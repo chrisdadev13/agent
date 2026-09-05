@@ -93,19 +93,9 @@ lib/refund.ts                  Refund schemas and currency formatting
 
 ## [05] MANUAL CHECKS
 
-With all four environment variables configured and the development server running:
-
-```bash
-node scripts/check-chat.mjs
-node --env-file=.env.local scripts/check-slack.mjs
-```
-
-This makes an OpenAI request and checks input validation, streaming, and
-persisted stream replay. Check Slack approval and rejection manually using
-the guided demo.
-
-The Slack script checks callback authentication and validation without posting
-messages. After approving or rejecting in the demo, send a follow-up message to
+With all four environment variables configured and the development server running,
+check Slack approval and rejection manually using the guided demo.
+After approving or rejecting in the demo, send a follow-up message to
 check that tool results remain in the conversation history. An old approval
 button must not change the recorded decision.
 

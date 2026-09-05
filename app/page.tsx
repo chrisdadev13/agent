@@ -1,62 +1,70 @@
-'use client'
+"use client";
 
-import { ArrowUp02Icon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { useChat } from '@ai-sdk/react'
-import { WorkflowChatTransport } from '@workflow/ai'
-import { useRef, useState } from 'react'
-import { formatRefund, type RefundChatMessage } from '#/lib/refund'
-
-import { Badge } from '#/components/ui/badge'
+import { useChat } from "@ai-sdk/react";
+import { ArrowUp02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { WorkflowChatTransport } from "@workflow/ai";
+import { useRef, useState } from "react";
+import { Badge } from "#/components/ui/badge";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
-  InputGroupTextarea
-} from '#/components/ui/input-group'
-import { Message, MessageContent, MessageHeader } from '#/components/ui/message'
+  InputGroupTextarea,
+} from "#/components/ui/input-group";
+import {
+  Message,
+  MessageContent,
+  MessageHeader,
+} from "#/components/ui/message";
 import {
   MessageScroller,
   MessageScrollerButton,
   MessageScrollerContent,
   MessageScrollerItem,
   MessageScrollerProvider,
-  MessageScrollerViewport
-} from '#/components/ui/message-scroller'
+  MessageScrollerViewport,
+} from "#/components/ui/message-scroller";
+import { formatRefund, type RefundChatMessage } from "#/lib/refund";
 
 const demoMessages = [
-  'Hi, I need help with a subscription charge.',
-  'I see two charges of $1,200 for the same subscription this month.',
-  'Both charges are completed, and I only have one subscription.',
-  'Can you refund the extra $1,200?'
-]
+  "Hi, I need help with a subscription charge.",
+  "I see two charges of $1,200 for the same subscription this month.",
+  "Both charges are completed, and I only have one subscription.",
+  "Can you refund the extra $1,200?",
+];
 
 export default function Home() {
-  const [input, setInput] = useState('')
-  const [demoStep, setDemoStep] = useState(0)
-  const runId = useRef<string | null>(null)
+  const [input, setInput] = useState("");
+  const [demoStep, setDemoStep] = useState(0);
+  const runId = useRef<string | null>(null);
   const [transport] = useState(
     () =>
       new WorkflowChatTransport<RefundChatMessage>({
         onChatSendMessage: (response) => {
-          runId.current = response.headers.get('x-workflow-run-id')
+          runId.current = response.headers.get("x-workflow-run-id");
         },
         prepareReconnectToStreamRequest: ({ api }) => ({
-          api: runId.current ? `/api/chat/${encodeURIComponent(runId.current)}/stream` : api
-        })
-      })
-  )
+          api: runId.current
+            ? `/api/chat/${encodeURIComponent(runId.current)}/stream`
+            : api,
+        }),
+      }),
+  );
   const { messages, sendMessage, status, error, regenerate, resumeStream } =
-    useChat<RefundChatMessage>({ transport })
-  const busy = status === 'submitted' || status === 'streaming'
+    useChat<RefundChatMessage>({ transport });
+  const busy = status === "submitted" || status === "streaming";
   const awaitingApproval = messages
     .at(-1)
-    ?.parts.some((part) => part.type === 'tool-requestRefund' && part.state === 'input-available')
+    ?.parts.some(
+      (part) =>
+        part.type === "tool-requestRefund" && part.state === "input-available",
+    );
 
   function send(text: string) {
-    if (busy || awaitingApproval || !text.trim()) return
-    void sendMessage({ text: text.trim() })
-    setInput('')
+    if (busy || awaitingApproval || !text.trim()) return;
+    void sendMessage({ text: text.trim() });
+    setInput("");
   }
 
   return (
@@ -90,12 +98,13 @@ export default function Home() {
                 <MessageScrollerItem key={message.id} messageId={message.id}>
                   <Message className="grid grid-cols-1 gap-[7px] sm:grid-cols-[80px_minmax(0,1fr)] sm:gap-[18px]">
                     <MessageHeader className="items-start px-0 font-mono text-[9px] leading-normal font-normal tracking-[0.06em] text-neutral-400 uppercase sm:pt-1">
-                      {message.role === 'user' ? 'Customer' : 'Agent'}
+                      {message.role === "user" ? "Customer" : "Agent"}
                     </MessageHeader>
                     <MessageContent className="max-w-[480px] whitespace-pre-wrap text-sm leading-[1.72] tracking-[-0.01em]">
                       {message.parts.map((part, index) => {
-                        if (part.type === 'text') return <p key={index}>{part.text}</p>
-                        if (part.type !== 'tool-requestRefund') return null
+                        if (part.type === "text")
+                          return <p key={index}>{part.text}</p>;
+                        if (part.type !== "tool-requestRefund") return null;
                         return (
                           <section
                             key={part.toolCallId}
@@ -105,13 +114,13 @@ export default function Home() {
                             <div className="flex items-center justify-between gap-4 font-semibold">
                               <span>Human approval</span>
                               <span>
-                                {part.state === 'output-available'
+                                {part.state === "output-available"
                                   ? part.output.approved
-                                    ? 'APPROVED'
-                                    : 'REJECTED'
-                                  : part.state === 'output-error'
-                                    ? 'ERROR'
-                                    : 'PENDING'}
+                                    ? "APPROVED"
+                                    : "REJECTED"
+                                  : part.state === "output-error"
+                                    ? "ERROR"
+                                    : "PENDING"}
                               </span>
                             </div>
                             {part.input?.amountCents != null && (
@@ -121,14 +130,14 @@ export default function Home() {
                             )}
                             {part.input?.reason && <p>{part.input.reason}</p>}
                             <p className="mt-2 text-neutral-600">
-                              {part.state === 'output-available'
+                              {part.state === "output-available"
                                 ? `Decision recorded from Slack reviewer ${part.output.reviewer}. Demo only — no money moved.`
-                                : part.state === 'output-error'
-                                  ? 'Could not complete the approval request. Check the workflow logs.'
-                                  : 'Sending the request to Slack and waiting for a reviewer to approve or reject it.'}
+                                : part.state === "output-error"
+                                  ? "Could not complete the approval request. Check the workflow logs."
+                                  : "Sending the request to Slack and waiting for a reviewer to approve or reject it."}
                             </p>
                           </section>
-                        )
+                        );
                       })}
                     </MessageContent>
                   </Message>
@@ -137,22 +146,28 @@ export default function Home() {
               {busy && (
                 <p role="status" className="text-xs text-neutral-500">
                   {awaitingApproval
-                    ? 'Waiting for a decision in Slack…'
-                    : status === 'submitted'
-                      ? 'Agent is thinking…'
-                      : 'Agent is replying…'}
+                    ? "Waiting for a decision in Slack…"
+                    : status === "submitted"
+                      ? "Agent is thinking…"
+                      : "Agent is replying…"}
                 </p>
               )}
               {error && (
                 <div role="alert" className="text-sm text-red-700">
-                  <p>{error.message || 'Something went wrong. Please try again.'}</p>
+                  <p>
+                    {error.message || "Something went wrong. Please try again."}
+                  </p>
                   <button
                     type="button"
                     className="mt-2 cursor-pointer underline"
                     disabled={busy}
-                    onClick={() => void (awaitingApproval ? resumeStream() : regenerate())}
+                    onClick={() =>
+                      void (awaitingApproval ? resumeStream() : regenerate())
+                    }
                   >
-                    {awaitingApproval ? 'Reconnect to approval' : 'Retry last message'}
+                    {awaitingApproval
+                      ? "Reconnect to approval"
+                      : "Retry last message"}
                   </button>
                 </div>
               )}
@@ -164,8 +179,8 @@ export default function Home() {
 
       <form
         onSubmit={(event) => {
-          event.preventDefault()
-          send(input)
+          event.preventDefault();
+          send(input);
         }}
         className="mx-auto w-full max-w-[760px] shrink-0 px-[22px] pt-3 pb-6 sm:px-12"
       >
@@ -178,8 +193,8 @@ export default function Home() {
               type="button"
               disabled={busy || awaitingApproval || Boolean(error)}
               onClick={() => {
-                send(demoMessages[demoStep])
-                setDemoStep(demoStep + 1)
+                send(demoMessages[demoStep]);
+                setDemoStep(demoStep + 1);
               }}
               className="cursor-pointer rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-left text-xs text-neutral-700 hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50"
             >
@@ -193,12 +208,12 @@ export default function Home() {
             onChange={(event) => setInput(event.target.value)}
             onKeyDown={(event) => {
               if (
-                event.key === 'Enter' &&
+                event.key === "Enter" &&
                 (event.metaKey || event.ctrlKey) &&
                 !event.nativeEvent.isComposing
               ) {
-                event.preventDefault()
-                event.currentTarget.form?.requestSubmit()
+                event.preventDefault();
+                event.currentTarget.form?.requestSubmit();
               }
             }}
             maxLength={10000}
@@ -207,7 +222,10 @@ export default function Home() {
             placeholder="Ask the refund agent..."
             className="max-h-48 min-h-14 px-5 py-4 text-base leading-6 placeholder:text-neutral-400 md:text-sm md:leading-6"
           />
-          <InputGroupAddon align="inline-end" className="self-end p-2.5 has-[>button]:mr-0">
+          <InputGroupAddon
+            align="inline-end"
+            className="self-end p-2.5 has-[>button]:mr-0"
+          >
             <InputGroupButton
               type="submit"
               disabled={busy || awaitingApproval || !input.trim()}
@@ -232,5 +250,5 @@ export default function Home() {
         <span className="hidden sm:inline">Human approval via Slack</span>
       </footer>
     </main>
-  )
+  );
 }
