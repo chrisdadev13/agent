@@ -9,7 +9,7 @@ Quick Start
 -----------
 
 ```sh
-npm ci
+npm i
 cp .env.example .env.local
 ```
 
