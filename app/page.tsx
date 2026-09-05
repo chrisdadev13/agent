@@ -103,6 +103,7 @@ export default function Home() {
                     <MessageContent className="max-w-[480px] whitespace-pre-wrap text-sm leading-[1.72] tracking-[-0.01em]">
                       {message.parts.map((part, index) => {
                         if (part.type === "text")
+                          // biome-ignore lint/suspicious/noArrayIndexKey: Streamed parts keep their positions and have no IDs; text changes during streaming.
                           return <p key={index}>{part.text}</p>;
                         if (part.type !== "tool-requestRefund") return null;
                         return (
@@ -144,13 +145,13 @@ export default function Home() {
                 </MessageScrollerItem>
               ))}
               {busy && (
-                <p role="status" className="text-xs text-neutral-500">
+                <output className="text-xs text-neutral-500">
                   {awaitingApproval
                     ? "Waiting for a decision in Slack…"
                     : status === "submitted"
                       ? "Agent is thinking…"
                       : "Agent is replying…"}
-                </p>
+                </output>
               )}
               {error && (
                 <div role="alert" className="text-sm text-red-700">

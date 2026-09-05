@@ -20,7 +20,7 @@ export type RefundInput = z.infer<typeof refundInputSchema>;
 export type RefundDecision = z.infer<typeof refundDecisionSchema>;
 export type RefundChatMessage = UIMessage<
   unknown,
-  {},
+  Record<string, never>,
   {
     requestRefund: { input: RefundInput; output: RefundDecision };
   }

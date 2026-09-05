@@ -8,6 +8,7 @@ import { Separator } from "#/components/ui/separator";
 
 function ItemGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
+    // biome-ignore lint/a11y/useSemanticElements: Polymorphic Item children may render links or divs rather than native li elements.
     <div
       role="list"
       data-slot="item-group"
